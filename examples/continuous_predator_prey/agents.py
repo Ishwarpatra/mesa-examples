@@ -1,12 +1,18 @@
+import contextlib  # it's works as a context manager to suppress specific exceptions that may occur within its block. In this case, it's used to handle potential errors when trying to remove agents from the space or schedule, allowing the code to continue running smoothly even if those operations fail for some reason.
 import math
-import contextlib #it's works as a context manager to suppress specific exceptions that may occur within its block. In this case, it's used to handle potential errors when trying to remove agents from the space or schedule, allowing the code to continue running smoothly even if those operations fail for some reason.
+
 from mesa.experimental.continuous_space import ContinuousSpaceAgent
+
 # attempt to import the model by name; this works both when the
 # script is executed directly and when the package is imported by tests.
 try:
-    from .agents import Prey, Predator
+    from .agents import Predator, Prey
 except ImportError:
-    from agents import Predator, Prey  # type: ignore[import-not-found]  # running as script
+    from agents import (  # type: ignore[import-not-found]  # running as script
+        Predator,
+        Prey,
+    )
+
 
 # Simple scheduler that randomly activates agents in each step, without modifying the original list of agents.
 class SimpleRandomActivation:
@@ -31,8 +37,8 @@ class SimpleRandomActivation:
 
 
 class Prey(ContinuousSpaceAgent):
-
     "a prey create which hase very random motion the a continuous space"
+
     def __init__(self, unique_id, space, model, pos, speed=1.0):
         # ContinuousSpaceAgent requires (space, model)
         super().__init__(space, model)
@@ -40,19 +46,20 @@ class Prey(ContinuousSpaceAgent):
         self.unique_id = unique_id
         self.position = pos
         self.speed = speed
-    #now we need make it motion randomso we need move agent to random position based it's spee
-    def random_move(self):
-        #random angle between 0 and 2pi would taken 
-        angle=self.random.uniform(0,2*math.pi)
-        #change in x and y by trigonometry
-        dx=math.cos(angle)*self.speed
-        dy=math.sin(angle)*self.speed
-        #NEW POSITION  calculated
-        new_x=self.pos[0]+dx
-        new_y=self.pos[1]+dy
 
-        new_pos=(new_x,new_y)
-        
+    # now we need make it motion randomso we need move agent to random position based it's spee
+    def random_move(self):
+        # random angle between 0 and 2pi would taken
+        angle = self.random.uniform(0, 2 * math.pi)
+        # change in x and y by trigonometry
+        dx = math.cos(angle) * self.speed
+        dy = math.sin(angle) * self.speed
+        # NEW POSITION  calculated
+        new_x = self.pos[0] + dx
+        new_y = self.pos[1] + dy
+
+        new_pos = (new_x, new_y)
+
         # to make sure it doesn't go off the map; use the new helper
         if self.model.space.torus:
             new_pos = self.model.space.torus_correct(new_pos)
@@ -61,52 +68,64 @@ class Prey(ContinuousSpaceAgent):
         self.position = new_pos
 
     def step(self):
-        #it calls the random move function to move the agent in each step of the simulation
+        # it calls the random move function to move the agent in each step of the simulation
         self.random_move()
         if self.random.random() < self.model.prey_reproduce:
             # create new prey at the exact same position
-            new_prey = Prey(self.model.next_id(), self.model.space, self.model, self.position, self.speed)
+            new_prey = Prey(
+                self.model.next_id(),
+                self.model.space,
+                self.model,
+                self.position,
+                self.speed,
+            )
             self.model.schedule.add(new_prey)
+
 
 class Predator(ContinuousSpaceAgent):
     "a predator agent which move move randomly but also try to catch the prey if it is nearby"
 
-    def __init__(self, unique_id, space, model, pos, speed=1.5, energy=0): #it need faster than prey to catch it
+    def __init__(
+        self, unique_id, space, model, pos, speed=1.5, energy=0
+    ):  # it need faster than prey to catch it
         super().__init__(space, model)
         self.unique_id = unique_id
         self.position = pos
         self.speed = speed
-        self.energy = energy # energy level of the predator
-    
-    def random_move(self):
-        #here we make it hunt the prey if it is nearby
-        #we will same random walk logic used in prey agent
-        angle=self.random.uniform(0,2*math.pi)
-        dx=math.cos(angle)*self.speed
-        dy=math.sin(angle)*self.speed
+        self.energy = energy  # energy level of the predator
 
-        new_pos=(self.pos[0]+dx,self.pos[1]+dy)
+    def random_move(self):
+        # here we make it hunt the prey if it is nearby
+        # we will same random walk logic used in prey agent
+        angle = self.random.uniform(0, 2 * math.pi)
+        dx = math.cos(angle) * self.speed
+        dy = math.sin(angle) * self.speed
+
+        new_pos = (self.pos[0] + dx, self.pos[1] + dy)
         if self.model.space.torus:
             new_pos = self.model.space.torus_correct(new_pos)
         self.position = new_pos
-    
+
     def step(self):
         self.random_move()
-        self.energy -= 1 #predator lose energy each step
+        self.energy -= 1  # predator lose energy each step
 
-        neighbors, distances=self.get_neighbors_in_radius(radius=2.0)#it get the nearby agents within a certain radius, it returns two lists: one with the neighboring agents and another with their corresponding distances from the predator
-        prey_neighbors=[obj for obj in neighbors if isinstance(obj,Prey)] #it filter the nearby agents to find the prey
-
+        neighbors, distances = self.get_neighbors_in_radius(
+            radius=2.0
+        )  # it get the nearby agents within a certain radius, it returns two lists: one with the neighboring agents and another with their corresponding distances from the predator
+        prey_neighbors = [
+            obj for obj in neighbors if isinstance(obj, Prey)
+        ]  # it filter the nearby agents to find the prey
 
         if prey_neighbors:
-            prey_to_eat = self.random.choice(prey_neighbors) 
-            self.energy += self.model.predator_gain_from_food 
+            prey_to_eat = self.random.choice(prey_neighbors)
+            self.energy += self.model.predator_gain_from_food
 
             # Fallbacks: remove from space and schedule if available
             if hasattr(self.model.space, "_remove_agent"):
                 with contextlib.suppress(Exception):
                     self.model.space._remove_agent(prey_to_eat)
-                    
+
             if hasattr(self.model.schedule, "remove"):
                 with contextlib.suppress(Exception):
                     self.model.schedule.remove(prey_to_eat)
@@ -121,13 +140,20 @@ class Predator(ContinuousSpaceAgent):
             if self in getattr(self.model.schedule, "agents", []):
                 with contextlib.suppress(Exception):
                     self.model.schedule.agents.remove(self)
-            
+
             with contextlib.suppress(Exception):
                 self.remove()
-                
+
             return
 
         if self.random.random() < self.model.predator_reproduce:
             self.energy /= 2  # reproduction costs energy
-            new_predator = Predator(self.model.next_id(), self.model.space, self.model, self.position, self.speed, int(self.energy))  # new predator starts with half parent's energy
+            new_predator = Predator(
+                self.model.next_id(),
+                self.model.space,
+                self.model,
+                self.position,
+                self.speed,
+                int(self.energy),
+            )  # new predator starts with half parent's energy
             self.model.schedule.add(new_predator)
