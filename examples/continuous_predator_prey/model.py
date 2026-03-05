@@ -31,7 +31,10 @@ try:
         Prey,
     )
 except ImportError:
-    from agents import Predator, Prey  # type: ignore[import-not-found]  # running as script
+    from agents import (  # type: ignore[import-not-found]  # running as script
+        Predator,
+        Prey,
+    )
 
 
 class PredatorPreyModel(mesa.Model):

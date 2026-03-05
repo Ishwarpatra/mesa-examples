@@ -7,7 +7,6 @@ from mesa.experimental.continuous_space import ContinuousSpaceAgent
 # script is executed directly and when the package is imported by tests.
 
 
-
 # Simple scheduler that randomly activates agents in each step, without modifying the original list of agents.
 class SimpleRandomActivation:
     def __init__(self, model):
