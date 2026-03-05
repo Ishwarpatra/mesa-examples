@@ -5,13 +5,7 @@ from mesa.experimental.continuous_space import ContinuousSpaceAgent
 
 # attempt to import the model by name; this works both when the
 # script is executed directly and when the package is imported by tests.
-try:
-    from .agents import Predator, Prey
-except ImportError:
-    from agents import (  # type: ignore[import-not-found]  # running as script
-        Predator,
-        Prey,
-    )
+
 
 
 # Simple scheduler that randomly activates agents in each step, without modifying the original list of agents.

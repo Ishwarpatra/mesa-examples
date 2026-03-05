@@ -31,11 +31,11 @@ try:
         Prey,
     )
 except ImportError:
-    from agents import Predator, Prey  # type: ignore  # running as script
+    from agents import Predator, Prey  # type: ignore[import-not-found]  # running as script
 
 
 class PredatorPreyModel(mesa.Model):
-    "model duty is to simulate predator and prey behaviour in a continous space"
+    "model duty is to simulate predator and prey behaviour in a continuous space"
 
     def __init__(
         self,
@@ -47,7 +47,7 @@ class PredatorPreyModel(mesa.Model):
         predator_reproduce=0.05,  # it reproduce faster than prey to keep the population in check; this will affect how quickly the predator population can grow when food is abundant
         predator_gain_from_food=20,  # energy gained by predator when it eats a prey; this will affect how long the predator can survive without food and how quickly it can reproduce
         rng=None,
-        **kwargs,  # pupose of kwargs allow extra parameters to be passed to the model if needed without changing the method signature
+        **kwargs,  # purpose of kwargs allow extra parameters to be passed to the model if needed without changing the method signature
     ):
         # Pass rng and kwargs to the new Mesa 4 Model class
         super().__init__(rng=rng, **kwargs)
@@ -61,7 +61,7 @@ class PredatorPreyModel(mesa.Model):
         self.predator_reproduce = predator_reproduce
         self.predator_gain_from_food = predator_gain_from_food
 
-        # again we need make sure it doesnt go off the edge so torus wrap around is used
+        # again we need make sure it doesn't go off the edge so torus wrap around is used
         # ContinuousSpace requires a list of (min,max) bounds for each dimension.
         dims = [(0, self.width), (0, self.height)]
         # pass the model's random number generator so the space is reproducible
@@ -98,10 +98,10 @@ class PredatorPreyModel(mesa.Model):
             model_reporters={
                 "Prey": lambda m: sum(
                     1 for a in m.schedule.agents if isinstance(a, Prey)
-                ),  # it's count the number of prey by checkin instances of prey class in the schedule
+                ),  # it's count the number of prey by checking instances of prey class in the schedule
                 "Predators": lambda m: sum(
                     1 for a in m.schedule.agents if isinstance(a, Predator)
-                ),  # it's count the number of predators by checkin instances of predator class in the schedule
+                ),  # it's count the number of predators by checking instances of predator class in the schedule
             }
         )
 
@@ -115,6 +115,6 @@ class PredatorPreyModel(mesa.Model):
 
     def next_id(self):
         """Return a new unique agent id (compatibility helper)."""
-        nid = self.agent_id_counter
-        self.agent_id_counter += 1
+        nid = getattr(self, "agent_id_counter", 1)
+        self.agent_id_counter = nid + 1
         return nid
