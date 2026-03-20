@@ -3,7 +3,7 @@ from mesa.experimental.continuous_space import ContinuousSpaceAgent
 
 
 class Prey(ContinuousSpaceAgent):
-    "a prey agent which has random motion in continuous space"
+    #a prey agent which has random motion in continuous space
 
     def __init__(self, space, model, pos, speed=1.0, max_age=40):
         # unique_id is handled automatically by super()
@@ -50,16 +50,16 @@ class Prey(ContinuousSpaceAgent):
         neighbors, _ = self.get_neighbors_in_radius(radius=2.5)  # it get nearby agents within radius
         prey_neighbors = [n for n in neighbors if isinstance(n, Prey)]  # it filter to find only prey
 
-        # 2. MATING & CROWDING: must have at least 1 mate nearby (>0), 
+        # 2. MATING & CROWDING: must have at least 1 mate nearby (>0),
         # but won't reproduce if it's too overcrowded (<6)
-        if 0 < len(prey_neighbors) < 6:  # it check not too lonely and not too crowded
-            if self.random.random() < self.model.prey_reproduce:
-                # create new prey at the exact same position (asexual reproduction)
-                Prey(self.model.space, self.model, self.position, self.speed, self.max_age)
+        # it check not too lonely and not too crowded
+        if 0 < len(prey_neighbors) < 6 and self.random.random() < self.model.prey_reproduce:
+            # create new prey at the exact same position (asexual reproduction)
+            Prey(self.model.space, self.model, self.position, self.speed, self.max_age)
 
 
 class Predator(ContinuousSpaceAgent):
-    "a predator agent which moves randomly but also hunts nearby prey"
+    #a predator agent which moves randomly but also hunts nearby prey
 
     def __init__(self, space, model, pos, speed=1.5, energy=0, max_age=60):
         # unique_id is handled automatically by super()
