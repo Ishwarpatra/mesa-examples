@@ -1,16 +1,17 @@
 import math
+
 from mesa.experimental.continuous_space import ContinuousSpaceAgent
 
 
 class Prey(ContinuousSpaceAgent):
-    #a prey agent which has random motion in continuous space
+    # a prey agent which has random motion in continuous space
 
     def __init__(self, space, model, pos, speed=1.0, max_age=40):
         # unique_id is handled automatically by super()
         super().__init__(space, model)
         self.position = pos
         self.speed = speed
-        
+
         # we need give them random starting age so they don't all die on the exact same step!
         self.age = self.random.randint(0, max_age)
         self.max_age = max_age  # it's maximum lifespan of prey agent
@@ -37,7 +38,7 @@ class Prey(ContinuousSpaceAgent):
 
     def step(self):
         # it calls the random move function to move the agent in each step of the simulation
-        
+
         # 1. DYING OLD: increase age, and die if too old
         self.age += 1  # age increasing each step
         if self.age > self.max_age:
@@ -47,19 +48,26 @@ class Prey(ContinuousSpaceAgent):
         self.random_move()
 
         # check surroundings for mating and overcrowding
-        neighbors, _ = self.get_neighbors_in_radius(radius=2.5)  # it get nearby agents within radius
-        prey_neighbors = [n for n in neighbors if isinstance(n, Prey)]  # it filter to find only prey
+        neighbors, _ = self.get_neighbors_in_radius(
+            radius=2.5
+        )  # it get nearby agents within radius
+        prey_neighbors = [
+            n for n in neighbors if isinstance(n, Prey)
+        ]  # it filter to find only prey
 
         # 2. MATING & CROWDING: must have at least 1 mate nearby (>0),
         # but won't reproduce if it's too overcrowded (<6)
         # it check not too lonely and not too crowded
-        if 0 < len(prey_neighbors) < 6 and self.random.random() < self.model.prey_reproduce:
+        if (
+            0 < len(prey_neighbors) < 6
+            and self.random.random() < self.model.prey_reproduce
+        ):
             # create new prey at the exact same position (asexual reproduction)
             Prey(self.model.space, self.model, self.position, self.speed, self.max_age)
 
 
 class Predator(ContinuousSpaceAgent):
-    #a predator agent which moves randomly but also hunts nearby prey
+    # a predator agent which moves randomly but also hunts nearby prey
 
     def __init__(self, space, model, pos, speed=1.5, energy=0, max_age=60):
         # unique_id is handled automatically by super()
@@ -67,7 +75,7 @@ class Predator(ContinuousSpaceAgent):
         self.position = pos
         self.speed = speed
         self.energy = energy  # energy level of the predator; it need for survival and reproduction
-        
+
         # dying old - we need give them random starting age
         self.age = self.random.randint(0, max_age)
         self.max_age = max_age  # it's maximum lifespan of predator agent
@@ -95,13 +103,17 @@ class Predator(ContinuousSpaceAgent):
         self.energy -= 1  # predator lose energy each step; it's cost of living
 
         # get nearby agents within hunting radius (increased from 2.0 so they can find food easier)
-        neighbors, _ = self.get_neighbors_in_radius(radius=4.0)  
-        prey_neighbors = [n for n in neighbors if isinstance(n, Prey)]  # it filter the nearby agents to find the prey
+        neighbors, _ = self.get_neighbors_in_radius(radius=4.0)
+        prey_neighbors = [
+            n for n in neighbors if isinstance(n, Prey)
+        ]  # it filter the nearby agents to find the prey
 
         if prey_neighbors:
-            prey_to_eat = self.random.choice(prey_neighbors)  # choose random prey to eat
+            prey_to_eat = self.random.choice(
+                prey_neighbors
+            )  # choose random prey to eat
             self.energy += self.model.predator_gain_from_food  # gain energy from eating
-            
+
             # Modern Mesa 4.0 removal (replaces all the contextlib fallbacks)
             prey_to_eat.remove()  # prey agent removed from simulation
 
@@ -120,5 +132,5 @@ class Predator(ContinuousSpaceAgent):
                 self.position,
                 self.speed,
                 int(self.energy),
-                self.max_age
+                self.max_age,
             )  # new predator starts with half parent's energy
