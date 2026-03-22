@@ -3,8 +3,8 @@ from matplotlib.markers import MarkerStyle
 from mesa.visualization import Slider, SolaraViz, SpaceRenderer, make_plot_component
 from mesa.visualization.components import AgentPortrayalStyle
 
-from .model import PredatorPreyModel
-from .agents import Prey, Predator
+from prey_predator.model import PredatorPreyModel
+from prey_predator.agents import Prey, Predator
 
 #here visualization part is added where we can see see the behavior
 def agent_draw(agent):
