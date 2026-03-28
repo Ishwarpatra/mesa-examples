@@ -1,10 +1,7 @@
-from matplotlib.markers import MarkerStyle
-
+from agents import Predator, Prey
 from mesa.visualization import Slider, SolaraViz, SpaceRenderer, make_plot_component
 from mesa.visualization.components import AgentPortrayalStyle
-
 from model import PredatorPreyModel
-from agents import Prey, Predator
 
 
 def agent_draw(agent):
@@ -13,13 +10,13 @@ def agent_draw(agent):
         return AgentPortrayalStyle(
             color="blue",
             size=15,
-            marker="o"  # Circle for prey
+            marker="o",  # Circle for prey
         )
     elif isinstance(agent, Predator):
         return AgentPortrayalStyle(
             color="red",
             size=30,
-            marker="^"  # Triangle for predator
+            marker="^",  # Triangle for predator
         )
 
 
@@ -74,9 +71,7 @@ renderer = (
 
 
 # Set up the Population Line Chart
-population_chart = make_plot_component(
-    {"Prey": "blue", "Predators": "red"}
-)
+population_chart = make_plot_component({"Prey": "blue", "Predators": "red"})
 
 
 # Create the Solara webpage
