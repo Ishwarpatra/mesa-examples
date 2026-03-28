@@ -68,7 +68,8 @@ class PredatorPreyModel(mesa.Model):
         )
 
     def step(self):
-        # advancing to next step, model need to collect data before the agents take their actions
-        self.datacollector.collect(self)  # collect the data for the current step of the simulation
-        # Mesa 4.0 native agent activation (replaces the old scheduler)
-        self.agents.shuffle_do("step")  # it step all agents during the scheduling process
+        # Mesa 4.0 native agent activation (agents take their turn first)
+        self.agents.shuffle_do("step")
+        
+        # Collect the data AFTER the agents have acted to capture the results
+        self.datacollector.collect(self)
