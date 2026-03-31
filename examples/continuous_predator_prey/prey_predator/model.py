@@ -1,5 +1,6 @@
 import mesa
 from mesa.experimental.continuous_space import ContinuousSpace
+
 from .agents import Predator, Prey
 
 
