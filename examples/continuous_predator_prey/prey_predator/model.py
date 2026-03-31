@@ -1,6 +1,6 @@
 import mesa
-from agents import Predator, Prey
 from mesa.experimental.continuous_space import ContinuousSpace
+from .agents import Predator, Prey
 
 
 class PredatorPreyModel(mesa.Model):
