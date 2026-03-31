@@ -1,3 +1,16 @@
+---
+title: Continuous Space Predator-Prey
+authors:
+  - Ishwarpatra
+domain:
+  - biology
+  - population-dynamics
+complexity: intermediate
+mesa_version_min: "4.0"
+status: incubator
+keywords: [continuous space, lotka-volterra, carrying capacity, solara]
+---
+
 # Continuous Space Predator-Prey Model
 
 ## Summary
